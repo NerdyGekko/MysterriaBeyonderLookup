@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mysterria Pathway Viewer</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input { padding: 8px; width: 300px; margin-bottom: 12px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background: #f3f3f3; }
+    .bar { background: #ddd; border-radius: 6px; overflow: hidden; width: 120px; }
+    .fill { background: #4caf50; height: 12px; }
+  </style>
+</head>
+
+<body>
+  <h1>Mysterria Pathway Viewer</h1>
+  <p id="count">Loading...</p>
+
+  <input id="search" placeholder="Search player or pathway...">
+
+  <table>
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Pathway</th>
+        <th>Sequence</th>
+        <th>Acting</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <script>
+    const url = "https://www.mysterria.net/catwalk/pathway/everyone";
+    let players = [];
+
+    async function loadData() {
+      try {
+        const res = await fetch(url);
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} ${res.statusText}`);
+        }
+
+        const json = await res.json();
+        console.log("Loaded JSON:", json);
+
+        const list = json.data?.beyonder ?? json.beyonder ?? [];
+
+        if (!Array.isArray(list)) {
+          throw new Error("Could not find beyonder list in JSON");
+        }
+
+        players = list.map(p => ({
+          player: p.playerName ?? "Unknown",
+          pathway: p.pathway ?? "Unknown",
+          sequence: Number(p.sequence),
+          acting: Number(p.acting)
+        }));
+
+        render();
+      } catch (err) {
+        document.getElementById("count").textContent =
+          "Failed to load data: " + err.message;
+
+        console.error("Load failed:", err);
+      }
+    }
+
+    function render() {
+      const q = document.getElementById("search").value.toLowerCase();
+
+      const filtered = players.filter(p =>
+        p.player.toLowerCase().includes(q) ||
+        p.pathway.toLowerCase().includes(q)
+      );
+
+      document.getElementById("count").textContent =
+        `${filtered.length} shown / ${players.length} total`;
+
+      document.getElementById("rows").innerHTML = filtered.map(p => {
+        const percent = Math.round((p.acting || 0) * 100);
+
+        return `
+          <tr>
+            <td>${p.player}</td>
+            <td>${p.pathway}</td>
+            <td>${p.sequence}</td>
+            <td>
+              ${percent}%
+              <div class="bar">
+                <div class="fill" style="width:${percent}%"></div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    document.getElementById("search").addEventListener("input", render);
+
+    loadData();
+
+    setInterval(loadData, 60000);
+  </script>
+</body>
+</html>
