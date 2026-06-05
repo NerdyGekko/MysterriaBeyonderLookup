@@ -17,7 +17,12 @@
   <h1>Mysterria Pathway Viewer</h1>
   <p id="count">Loading...</p>
 
-  <input id="search" placeholder="Search player or pathway...">
+  <input id="search" placeholder="Search player...">
+  
+  <select id=""pathwayFilter>
+    <option value="">All Pathways</option>
+  </select>
+
 
   <select id="sequenceFilter">
     <option value="">All Sequences</option>
@@ -69,6 +74,7 @@
           acting: Number(p.acting)
         }));
 
+        populatePathwayFilter();
         render();
       } catch (err) {
         document.getElementById("count").textContent =
@@ -78,45 +84,60 @@
       }
     }
 
+    function populatePathwayFilter() {
+      const pathwayFilter = document.getElementById("pathwayFilter");
+      const pathways = [...new Set(players.map(p => p.pathway))].sort();
+
+      pathwayFilter.innerHTML = '<option value="">All Pathways</option>';
+
+      pathways.forEach(pathway => {
+        pathwayFilter.innerHTML += `<option value="${pathway}">${pathway}</option>`;
+      });
+    }
+
     function render() {
     const q = document.getElementById("search").value.toLowerCase();
+    const pathway = document.getElementById("pathwayFilter").value;
     const sequence = document.getElementById("sequenceFilter").value;
 
     const filtered = players.filter(p => {
-      const matchesSearch =
-        p.player.toLowerCase().includes(q) ||
-        p.pathway.toLowerCase().includes(q);
+      const matchesPlayer =
+        p.player.toLowerCase().includes(q);
+
+      const matchesPathway =
+        pathway === "" || p.pathway === pathway;
 
       const matchesSequence =
         sequence === "" || String(p.sequence) === sequence;
 
-      return matchesSearch && matchesSequence;
-  });
+      return matchesPlayer && matchesPathway && matchesSequence;
+    });
 
-      document.getElementById("count").textContent =
-        `${filtered.length} shown / ${players.length} total`;
+    document.getElementById("count").textContent =
+      `${filtered.length} shown / ${players.length} total`;
 
-      document.getElementById("rows").innerHTML = filtered.map(p => {
-        const percent = Math.round((p.acting || 0) * 100);
+    document.getElementById("rows").innerHTML = filtered.map(p => {
+      const percent = Math.round((p.acting || 0) * 100);
 
-        return `
-          <tr>
-            <td>${p.player}</td>
-            <td>${p.pathway}</td>
-            <td>${p.sequence}</td>
-            <td>
-              ${percent}%
-              <div class="bar">
-                <div class="fill" style="width:${percent}%"></div>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join("");
-    }
+      return `
+        <tr>
+          <td>${p.player}</td>
+          <td>${p.pathway}</td>
+          <td>${p.sequence}</td>
+          <td>
+            ${percent}%
+            <div class="bar">
+              <div class="fill" style="width:${percent}%"></div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
 
     document.getElementById("search").addEventListener("input", render);
     document.getElementById("sequenceFilter").addEventListener("change", render);
+    document.getElementById("pathwayFilter").addEventListener("change", render);
 
     loadData();
 
