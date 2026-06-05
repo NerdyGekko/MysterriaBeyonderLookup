@@ -17,7 +17,17 @@
   <h1>Mysterria Pathway Viewer</h1>
   <p id="count">Loading...</p>
 
-  <input id="search" placeholder="Search player, pathway, or sequence...">
+  <input id="search" placeholder="Search player or pathway...">
+
+  <select id="sequenceFilter">
+    <option value="">All Sequences</option>
+    <option value="9">9</option>
+    <option value="8">8</option>
+    <option value="7">7</option>
+    <option value="6">6</option>
+    <option value="5">5</option>
+    <option value="4">4</option>
+  </select>
 
   <table>
     <thead>
@@ -69,13 +79,19 @@
     }
 
     function render() {
-      const q = document.getElementById("search").value.toLowerCase();
+    const q = document.getElementById("search").value.toLowerCase();
+    const sequence = document.getElementById("sequenceFilter").value;
 
-      const filtered = players.filter(p =>
+    const filtered = players.filter(p => {
+      const matchesSearch =
         p.player.toLowerCase().includes(q) ||
-        p.pathway.toLowerCase().includes(q) ||
-        String(p.sequence).includes(q)
-      );
+        p.pathway.toLowerCase().includes(q);
+
+      const matchesSequence =
+        sequence === "" || String(p.sequence) === sequence;
+
+      return matchesSearch && matchesSequence;
+  });
 
       document.getElementById("count").textContent =
         `${filtered.length} shown / ${players.length} total`;
@@ -100,6 +116,7 @@
     }
 
     document.getElementById("search").addEventListener("input", render);
+    document.getElementById("sequenceFilter").addEventListener("change", render);
 
     loadData();
 
