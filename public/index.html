@@ -17,7 +17,7 @@
   <h1>Mysterria Pathway Viewer</h1>
   <p id="count">Loading...</p>
 
-  <input id="search" placeholder="Search player or pathway...">
+  <input id="search" placeholder="Search player, pathway, or sequence...">
 
   <table>
     <thead>
@@ -73,7 +73,8 @@
 
       const filtered = players.filter(p =>
         p.player.toLowerCase().includes(q) ||
-        p.pathway.toLowerCase().includes(q)
+        p.pathway.toLowerCase().includes(q) ||
+        String(p.sequence).includes(q)
       );
 
       document.getElementById("count").textContent =
