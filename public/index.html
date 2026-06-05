@@ -19,8 +19,31 @@
 
   <input id="search" placeholder="Search player...">
   
-  <select id=""pathwayFilter>
+  <select id="pathwayFilter">
     <option value="">All Pathways</option>
+
+    <option value="abyss">Abyss</option>
+    <option value="chained">Chained</option>
+    <option value="darkness">Darkness</option>
+    <option value="death">Death</option>
+    <option value="demoness">Demoness</option>
+    <option value="door">Door</option>
+    <option value="emperor">Emperor</option>
+    <option value="error">Error</option>
+    <option value="fool">Fool</option>
+    <option value="fortune">Fortune</option>
+    <option value="giant">Giant</option>
+    <option value="hanged">Hanged</option>
+    <option value="hermit">Hermit</option>
+    <option value="justiciar">Justiciar</option>
+    <option value="moon">Moon</option>
+    <option value="mother">Mother</option>
+    <option value="paragon">Paragon</option>
+    <option value="priest">Priest</option>
+    <option value="sun">Sun</option>
+    <option value="tower">Tower</option>
+    <option value="tyrant">Tyrant</option>
+    <option value="visionary">Visionary</option>
   </select>
 
 
@@ -74,7 +97,6 @@
           acting: Number(p.acting)
         }));
 
-        populatePathwayFilter();
         render();
       } catch (err) {
         document.getElementById("count").textContent =
@@ -84,18 +106,7 @@
       }
     }
 
-    function populatePathwayFilter() {
-      const pathwayFilter = document.getElementById("pathwayFilter");
-      const pathways = [...new Set(players.map(p => p.pathway))].sort();
-
-      pathwayFilter.innerHTML = '<option value="">All Pathways</option>';
-
-      pathways.forEach(pathway => {
-        pathwayFilter.innerHTML += `<option value="${pathway}">${pathway}</option>`;
-      });
-    }
-
-    function render() {
+  function render() {
     const q = document.getElementById("search").value.toLowerCase();
     const pathway = document.getElementById("pathwayFilter").value;
     const sequence = document.getElementById("sequenceFilter").value;
